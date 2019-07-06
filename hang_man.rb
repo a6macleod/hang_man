@@ -7,8 +7,8 @@ class HangMan
 		@game_display = set_guess_board(secret_word)
 		@alphabet = ("a".."z").to_a
 		@guessed_letters = []
-		@guess_counter = 6
-		@matched_word = ""
+		@guess_counter = 10
+		@matched_word = false
 	end
 
 	def set_secret_word_list 
@@ -37,7 +37,14 @@ class HangMan
 		return game_display
 	end
 
-	def compare_guess(player_guess)
+	def compare_word_guess(player_word_guess)
+		if player_word_guess == secret_word
+			puts "You guessed correctly! You win!"
+			self.matched_word = true
+		end
+	end
+
+	def compare_letter_guess(player_guess)
 		if secret_word.include?player_guess
 			matched_letter = []
 			secret_word_array = secret_word.split('')
@@ -57,32 +64,48 @@ class HangMan
 		puts "Guessed letters #{guessed_letters}"
 		puts "You have #{guess_counter} guesses left"
 		display_board
+		out_of_guesses
 	end
 
 	def display_board
 		puts game_display.join('')
 	end
+
+	def out_of_guesses
+		if guess_counter == 0
+			puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
+			puts "You are out of guesses!"
+			puts "the secret word was #{secret_word}\n\n"
+		end
+	end
 end
 
 def play_game(current_game)
-	puts "Guess a letter"
-	puts current_game.display_board
-	until (current_game.matched_word.size == current_game.secret_word.size) || (current_game.guess_counter == 0)
-		#puts "To guess the word press ('W') or just enter to guess a letter" 
-			#letter_or_word = gets.chomp.downcase
-			#if letter_or_word == "w"
-				#code for guessing the word
-			#else
-				player_guess = gets.chomp.downcase
-				if guess_validate(player_guess, current_game)
-					puts current_game.game_display
-					current_game.compare_guess(player_guess)
-				else
-					puts "Please enter one letter not yet picked then press 'enter'"
-					play_game(current_game)
-				end
+	puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
+	until (current_game.matched_word == true) || (current_game.guess_counter == 0)
+		puts "\n\nTo guess the word press 'W' and 'enter'. To guess a letter presse 'enter'" 
+		letter_or_word = gets.chomp.downcase
+		
+		if letter_or_word == "w"
+			puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
+			puts "Guess the word!"
+			player_word_guess = gets.chomp.downcase.strip
+			current_game.compare_word_guess(player_word_guess)
+		else
+			puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
+			puts "Guess a letter"
+			player_guess = gets.chomp.downcase
+			
+			if guess_validate(player_guess, current_game)
+				current_game.compare_letter_guess(player_guess)
+			else
+				puts "Please enter one letter not yet picked then press 'enter'"
+				play_game(current_game)
+			end
+		end
 	end
 	puts "\tGAME OVER"
+	puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
 end
 
 def guess_validate(player_guess, current_game)
@@ -94,6 +117,7 @@ def start_game
 	play_game(current_game)
 end
 
-puts "Guess the word!"
+puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
+puts "Let's play Hang Man! Guess the secret word"
 start_game
 
