@@ -40,5 +40,5 @@ guessed_letters:
 - i
 - a
 - u
-guess_counter: 7
+guess_counter: 3
 matched_word: false

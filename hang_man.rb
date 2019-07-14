@@ -11,7 +11,7 @@ class HangMan
 		@game_display = set_guess_board(secret_word)
 		@alphabet = ("a".."z").to_a
 		@guessed_letters = []
-		@guess_counter = 10
+		@guess_counter = 6
 		@matched_word = false
 	end
 
@@ -33,7 +33,6 @@ class HangMan
 
 	def pick_secret_word(word_array)
 		self.secret_word = word_array[rand(0..word_array.size)]
-		puts secret_word
 		return secret_word
 	end
 
@@ -98,32 +97,35 @@ class HangMan
 		save_file.close
 
 		puts "Game saved as #{filename}"
-
 	end
 end
 
-def pick_saved_game
+def list_saved_games
 	puts "\nAll saved games"
 	list_of_files = Dir["./saved_games/*.yaml"]
 	list_of_files.each do |file|
 		sub_string = file[file.index("h")..file.length]
 		puts sub_string
 	end
+	pick_saved_game
+end
+
+def pick_saved_game
 	puts "\n\nPick the game you want to load: "
 	user_pick = gets.chomp.downcase
 	file_to_load = "./saved_games/#{user_pick}"
-	if File.exists?(file_to_load)
-		puts "#{file_to_load} exists!"
-		pause_game = gets.chomp
+	
+	if File.exists?(file_to_load) == true
 		return file_to_load
 	else
 		puts "\n\n\n*******************************"
 		puts "Please enter a file that exists\n\n\n"
-	end	
+		list_saved_games
+	end
 end
 
 def load_game
-	saved_game_file = pick_saved_game
+	saved_game_file = list_saved_games
 	game_to_load = File.read(saved_game_file)
 	current_game = YAML::load(game_to_load)
 	play_game(current_game)
@@ -176,9 +178,8 @@ def open_existing_or_start_new
 	
 	if user_answer == "y"
 		load_game
-		current_game.display_board
 		play_game(current_game)
-	elsif user_answer == "n"
+	else 
 		puts "\nNEW GAME!\n"
 		start_new_game
 	end
