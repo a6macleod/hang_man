@@ -1,11 +1,8 @@
 # The total number of possible words is 61406
-
-require 'yaml'
-
 class HangMan
 	attr_accessor :secret_word, :game_display, :alphabet, :guessed_letters, :guess_counter, :matched_word, :game_id
 	
-	def initialize
+	def initialize (game_id, secret_word, game_display, guessed_letters, guess_counter)
 		@game_id = game_id_generator
 		@secret_word = set_secret_word_list
 		@game_display = set_guess_board(secret_word)
@@ -16,8 +13,8 @@ class HangMan
 	end
 
 	def game_id_generator
-		charset = Array('a'..'z') + Array(1..9)
-		Array.new(3) { charset.sample }.join
+		charset = Array('A'..'Z') + Array(0..100)
+		Array.new(5) { charset.sample }.join
 	end
 
 	def set_secret_word_list 
@@ -70,13 +67,13 @@ class HangMan
 	def turn_end(player_guess)
 		self.guessed_letters << player_guess
 		self.guess_counter -= 1
+		puts "Guessed letters #{guessed_letters}"
+		puts "You have #{guess_counter} guesses left"
 		display_board
 		out_of_guesses
 	end
 
 	def display_board
-		puts "Guessed letters #{guessed_letters}"
-		puts "You have #{guess_counter} guesses left"
 		puts game_display.join('')
 	end
 
@@ -87,53 +84,12 @@ class HangMan
 			puts "the secret word was #{secret_word}\n\n"
 		end
 	end
-
-	def save_game
-		Dir.mkdir("saved_games") unless Dir.exists?("saved_games")
-
-		filename = "saved_games/hangman_#{game_id}.yaml"
-		
-		save_file = File.open(filename, 'w')
-		save_file.puts YAML.dump(self)
-		save_file.close
-
-		puts "Game saved as #{filename}"
-
-	end
-end
-
-def pick_saved_game
-	puts "\nAll saved games"
-	list_of_files = Dir["./saved_games/*.yaml"]
-	list_of_files.each do |file|
-		sub_string = file[file.index("h")..file.length]
-		puts sub_string
-	end
-	puts "\n\nPick the game you want to load: "
-	user_pick = gets.chomp.downcase
-	file_to_load = "./saved_games/#{user_pick}"
-	if File.exists?(file_to_load)
-		puts "#{file_to_load} exists!"
-		pause_game = gets.chomp
-		return file_to_load
-	else
-		puts "\n\n\n*******************************"
-		puts "Please enter a file that exists\n\n\n"
-	end	
-end
-
-def load_game
-	saved_game_file = pick_saved_game
-	game_to_load = File.read(saved_game_file)
-	current_game = YAML::load(game_to_load)
-	play_game(current_game)
 end
 
 def play_game(current_game)
 	puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
-	current_game.display_board
 	until (current_game.matched_word == true) || (current_game.guess_counter == 0)
-		puts "\n\nTo guess the word press 'W' and 'enter'. \nTo guess a letter presse 'enter'. \nTo 'SAVE' press 'S' and 'enter'" 
+		puts "\n\nTo guess the word press 'W' and 'enter'. To guess a letter presse 'enter'. To 'SAVE' press 'S' and 'enter'" 
 		letter_or_word = gets.chomp.downcase
 		
 		if letter_or_word == "w"
@@ -143,7 +99,7 @@ def play_game(current_game)
 			current_game.compare_word_guess(player_word_guess)
 		elsif letter_or_word == "s"
 			puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
-			current_game.save_game
+			prepare_to_save_game
 		else
 			puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
 			puts "Guess a letter"
@@ -161,6 +117,28 @@ def play_game(current_game)
 	puts "\n\n +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-\n\n"
 end
 
+def prepare_to_save_game(game_id, secret_word, game_display, guessed_letters, guess_counter)
+	game_id = current_game.game_id
+	secret_word = current_game.secret_word
+	game_display = current_game.game_display
+	guessed_letters = current_game.guessed_letters
+	guess_counter = current_game.guess_counter
+
+	current_game.save_game
+end
+
+def save_game(game_id, secret_word, game_display, guessed_letters, guess_counter)
+	#code to save game to a new file
+	Dir.mkdir("saved_games") unless Dir.exists?("saved_games")
+	
+	filename = "hangman_#{game_id}.rb"
+	
+	File.open(filename, 'w') do |file|
+		file.puts HangMan
+	end
+
+end
+
 def guess_validate(player_guess, current_game)
 	((current_game.alphabet - current_game.guessed_letters).include?player_guess) ? true : false
 end
@@ -170,14 +148,14 @@ def start_new_game
 	play_game(current_game)
 end
 
+
+
 def open_existing_or_start_new
 	puts "Open an existing game? (y/n)"
 	user_answer = gets.chomp.strip.downcase
 	
 	if user_answer == "y"
-		load_game
-		current_game.display_board
-		play_game(current_game)
+		#code to open an existing game
 	elsif user_answer == "n"
 		puts "\nNEW GAME!\n"
 		start_new_game

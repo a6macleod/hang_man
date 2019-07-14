@@ -1,0 +1,44 @@
+--- !ruby/object:HangMan
+game_id: mg8
+secret_word: tunisia
+game_display:
+- " _ "
+- u
+- " _ "
+- i
+- " _ "
+- i
+- a
+alphabet:
+- a
+- b
+- c
+- d
+- e
+- f
+- g
+- h
+- i
+- j
+- k
+- l
+- m
+- n
+- o
+- p
+- q
+- r
+- s
+- t
+- u
+- v
+- w
+- x
+- y
+- z
+guessed_letters:
+- i
+- a
+- u
+guess_counter: 7
+matched_word: false
